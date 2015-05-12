@@ -2,7 +2,7 @@
 
 void init_spi(void)
 {
-	//	   SCK    |    MOSI   |    SS     |    CE as outuput
+	//	   SCK    |    MOSI   |    CSN     |    CE as outuput
 	DDRB |= (1<<DDB5) | (1<<DDB3) | (1<<DDB2) | (1<<DDB1);
 	// MISO
 	DDRB &= ~(1<<DDB4);

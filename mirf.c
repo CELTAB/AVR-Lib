@@ -25,7 +25,7 @@ uint8_t mirf_get_reg(uint8_t reg)
 	_delay_us(10);
 	CSN_low; // Pull down chip select
 	_delay_us(10);
-	spi_transfer(R_REGISTER | reg);
+	spi_transfer(R_REGISTER | (REGISTER_MASK & reg));
 	_delay_us(10);
 	reg = spi_transfer(NOP); // Read status register
 	CSN_high; // Pull up chip select

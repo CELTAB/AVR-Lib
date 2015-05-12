@@ -23,7 +23,7 @@ void USART_init(void)
 	/* Enable USART transmitter and receiver */
 	UCSR0B = (1<<TXEN0) | (1<<RXEN0);
 	/* 1-bit Stop Bit and 8-bit Character Size */
-	UCSR0C = ~(1<<USBS0) & (3<<UCSZ00);
+	UCSR0C = (3<<UCSZ00);
 }
 
 void USART_transmit_byte(uint8_t data)
