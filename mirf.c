@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include "nrf24l01.h"
 #include "mirf.h"
-#include "spi_m328p.h"
+#include "spi.h"
 
 #define TADDR 		(uint8_t *)"taddr"
 #define RADDR		(uint8_t *)"raddr"
@@ -12,9 +12,9 @@ uint8_t mirf_status(void)
 	_delay_us(10);
 	CSN_low; // Pull down chip select
 	_delay_us(10);
-	spi_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
+	SPI_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
 	_delay_us(10);
-	uint8_t status = spi_transfer(NOP); // Read status register
+	uint8_t status = SPI_transfer(NOP); // Read status register
 	CSN_high; // Pull up chip select
 
 	return status;
@@ -25,9 +25,9 @@ uint8_t mirf_get_reg(uint8_t reg)
 	_delay_us(10);
 	CSN_low; // Pull down chip select
 	_delay_us(10);
-	spi_transfer(R_REGISTER | (REGISTER_MASK & reg));
+	SPI_transfer(R_REGISTER | (REGISTER_MASK & reg));
 	_delay_us(10);
-	reg = spi_transfer(NOP); // Read status register
+	reg = SPI_transfer(NOP); // Read status register
 	CSN_high; // Pull up chip select
 
 	return reg;
@@ -37,8 +37,8 @@ uint8_t mirf_get_reg(uint8_t reg)
 void mirf_config_register(uint8_t reg, uint8_t value)
 {
 	CSN_low;
-	spi_transfer(W_REGISTER | (REGISTER_MASK & reg));
-	spi_transfer(value);
+	SPI_transfer(W_REGISTER | (REGISTER_MASK & reg));
+	SPI_transfer(value);
 	CSN_high;
 }
 
@@ -46,8 +46,8 @@ void mirf_config_register(uint8_t reg, uint8_t value)
 void mirf_read_register(uint8_t reg, uint8_t *value, uint8_t len)
 {
 	CSN_low;
-	spi_transfer(R_REGISTER | (REGISTER_MASK & reg));
-	spi_read_data(value, len);
+	SPI_transfer(R_REGISTER | (REGISTER_MASK & reg));
+	SPI_read_data(value, len);
 	CSN_high;
 }
 
@@ -55,8 +55,8 @@ void mirf_read_register(uint8_t reg, uint8_t *value, uint8_t len)
 void mirf_write_register(uint8_t reg, uint8_t *value, uint8_t len)
 {
 	CSN_low;
-	spi_transfer(W_REGISTER | (REGISTER_MASK & reg));
-	spi_write_data(value, len);
+	SPI_transfer(W_REGISTER | (REGISTER_MASK & reg));
+	SPI_write_data(value, len);
 	CSN_high;
 }
 
@@ -84,6 +84,9 @@ void nrf24l01_init(void)
 
 	//device need 1.5ms to reach standby mode
 	_delay_ms(100);	
+
+    DDRB |= (1 << DDB1);
+    CE_low;
 }
 
 // Sends a data package to the default address. Be sure to send the correct
@@ -91,7 +94,7 @@ void nrf24l01_init(void)
 uint8_t mirf_send(uint8_t *value, uint8_t len, uint8_t *address)
 {
 	CSN_low; // Pull down chip select
-	spi_transfer(FLUSH_TX);  // Write cmd to flush tx fifo
+	SPI_transfer(FLUSH_TX);  // Write cmd to flush tx fifo
 	CSN_high; // Pull up chip select
 
 	// set the adress of the receiving chip
@@ -99,8 +102,8 @@ uint8_t mirf_send(uint8_t *value, uint8_t len, uint8_t *address)
 	mirf_write_register(TX_ADDR, address, 5);
 	
 	CSN_low;  // Pull down chip select
-	spi_transfer(W_TX_PAYLOAD); // Write cmd to write payload
-	spi_write_data(value, len); // Write payload
+	SPI_transfer(W_TX_PAYLOAD); // Write cmd to write payload
+	SPI_write_data(value, len); // Write payload
 	CSN_high; // Pull up chip select
 	
 	CE_high; // Start transmission
@@ -119,10 +122,10 @@ uint8_t mirf_send(uint8_t *value, uint8_t len, uint8_t *address)
 void mirf_flush_rx_tx(void)
 {
 	CSN_low; // Pull down chip select
-	spi_transfer(FLUSH_RX); // Flush RX
+	SPI_transfer(FLUSH_RX); // Flush RX
 	CSN_high; // Pull up chip select
 	CSN_low; // Pull down chip select
-	spi_transfer(FLUSH_TX);  // Write cmd to flush tx fifo
+	SPI_transfer(FLUSH_TX);  // Write cmd to flush tx fifo
 	CSN_high; // Pull up chip select
 }
 
@@ -130,8 +133,8 @@ void mirf_flush_rx_tx(void)
 uint8_t mirf_max_rt_reached(void)
 {
 	CSN_low; // Pull down chip select
-	spi_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
-	uint8_t status = spi_transfer(NOP); // Read status register
+	SPI_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
+	uint8_t status = SPI_transfer(NOP); // Read status register
 	CSN_high; // Pull up chip select
 	return status & (1<<MAX_RT);
 }
@@ -140,8 +143,8 @@ uint8_t mirf_data_ready(void)
 {
 	CSN_low;
 
-	spi_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
-	uint8_t status = spi_transfer(NOP);
+	SPI_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
+	uint8_t status = SPI_transfer(NOP);
 	CSN_high;
 	return status & (1<<RX_DR);
 }
@@ -149,8 +152,8 @@ uint8_t mirf_data_ready(void)
 void mirf_get_data(uint8_t *data, uint8_t buffersize)
 {
 	CSN_low;
-	spi_transfer(R_RX_PAYLOAD);
-	spi_read_data(data, buffersize);
+	SPI_transfer(R_RX_PAYLOAD);
+	SPI_read_data(data, buffersize);
 	CSN_high;
 	mirf_config_register(STATUS, (1<<RX_DR));
 }

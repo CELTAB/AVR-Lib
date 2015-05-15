@@ -3,6 +3,9 @@
 
 #include <avr/io.h>
 
+#define CE_high	PORTB |= (1<<DDB1);
+#define CE_low	PORTB &= ~(1<<DDB1);
+
 uint8_t mirf_status(void);
 
 uint8_t mirf_get_reg(uint8_t reg);

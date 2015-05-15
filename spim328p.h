@@ -10,6 +10,11 @@
 #define CSN_PORT PORTB
 #define CSN PB2
 
+/* Transmission disabled on this port */
+#define CSN_high	CSN_PORT |=  _BV(CSN);
+/* Transmission enabled on this port */
+#define CSN_low		CSN_PORT &= ~(_BV(CSN));
+
 #define MOSI DDB3
 #define MISO DDB4
 #define SCK DDB5
