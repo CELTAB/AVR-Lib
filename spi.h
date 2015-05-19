@@ -7,7 +7,10 @@
 #   include "spim328p.h"
 #endif
 
-#define DUMMY 0xFF
+/* The definitions of the CSN PORT are defined in
+ * the mcu-specific files (like spim328.h). In
+ * order to improve the performance in case of multiple
+ * callings, it's up to the caller to toggle the CSN */
 
 extern void SPI_init_master(void);
 

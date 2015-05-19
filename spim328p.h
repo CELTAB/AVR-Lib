@@ -1,3 +1,5 @@
+/* This file should be included from <spi.h> */
+
 #ifndef SPI328P_H
 #define SPI328P_H
 

@@ -1,5 +1,7 @@
 #include "spi.h"
 
+#define DUMMY 0xFF
+
 void SPI_write_data(uint8_t *dataout, uint8_t length)
 {
 	uint8_t i;
