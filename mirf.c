@@ -1,40 +1,106 @@
-#include <avr/io.h>
-#include <util/delay.h>
-#include "nrf24l01.h"
 #include "mirf.h"
 #include "spi.h"
 
-#define TADDR 		(uint8_t *)"taddr"
-#define RADDR		(uint8_t *)"raddr"
-
-uint8_t mirf_status(void)
+/* Set the defined configurations and set the CE pin as output */
+void MIRF_setup_configuration(void)
 {
-	_delay_us(10);
-	CSN_low; // Pull down chip select
-	_delay_us(10);
+    /* Small delay to be sure that the nRF24L01 module is turned on */
+	_delay_ms(10);
+
+    /* SETUP_AW - Setup of Address Width (commom for all data pipes) */
+    MIRF_set_register(SETUP_AW, MIRF_AW);
+
+    /* SETUP_RETR - Setup of Automatic Retransmission */
+	MIRF_set_register(SETUP_RETR, MIRF_RETR);
+
+    /* RF_CH - Radio Frequency Channel */
+    MIRF_set_register(RF_CH, MIRF_CH);
+
+    /* RF_Setup - Radio Frequency Setup Register */
+    MIRF_set_register(RF_SETUP, MIRF_SETUP);
+
+    /* CONFIG - Configuration Register */
+	MIRF_set_register(CONFIG, MIRF_CONFIG);
+
+    /* Set CE pin as output */
+    CE_DDR |= _BV(CE);
+}
+
+/* Keep record of the current pipes status
+ * By default, pipes 0 and 1 are already activated */
+static volatile uint8_t _mask_pipe = 3;
+/* Enable given RX data pipe [5:0] with auto acknowledgment,
+ * set its payload_size[32:0](bytes) and set the RX
+ * address. Be aware that the pipes [5:1] share the
+ * same 4 most signifcant bytes */
+void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address)
+{
+    _mask_pipe |= _BV(pipe);
+    /* EN_RXADDR - Enabled RX Addressess [5:0] */
+    MIRF_set_register(EN_RXADDR, _mask_pipe);
+    /* EN_AA - Enable Auto Acknowledgement Function [5:0] */
+    MIRF_set_register(EN_AA, _mask_pipe);
+
+    /* Set the payload_size in the respective pipe */
+    switch (pipe) {
+        case 0:
+            MIRF_set_register(RX_PW_P0, payload_size);
+            MIRF_write_register(RX_ADDR_P0, address, ADDR_SIZE);
+            break;
+        case 1:
+            MIRF_set_register(RX_PW_P1, payload_size);
+            MIRF_write_register(RX_ADDR_P1, address, ADDR_SIZE);
+            break;
+        case 2:
+            MIRF_set_register(RX_PW_P2, payload_size);
+            MIRF_write_register(RX_ADDR_P2, address, ADDR_SIZE);
+            break;
+        case 3:
+            MIRF_set_register(RX_PW_P3, payload_size);
+            MIRF_write_register(RX_ADDR_P3, address, ADDR_SIZE);
+            break;
+        case 4:
+            MIRF_set_register(RX_PW_P4, payload_size);
+            MIRF_write_register(RX_ADDR_P4, address, ADDR_SIZE);
+            break;
+        case 5:
+            MIRF_set_register(RX_PW_P5, payload_size);
+            MIRF_write_register(RX_ADDR_P5, address, ADDR_SIZE);
+            break;
+    }
+}
+
+/* Disable given RX pipe [5:0] */
+void MIRF_disable_rx_pipe(uint8_t pipe)
+{
+    _mask_pipe &= ~_BV(pipe);
+    MIRF_set_register(EN_RXADDR, _mask_pipe);
+}
+
+/* Read the Status Register */
+uint8_t MIRF_status(void)
+{
+	CSN_low;
 	SPI_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
-	_delay_us(10);
-	uint8_t status = SPI_transfer(NOP); // Read status register
-	CSN_high; // Pull up chip select
+	uint8_t status = SPI_transfer(NOP);
+	CSN_high;
 
 	return status;
 }
 
-uint8_t mirf_get_reg(uint8_t reg)
+/* Read one byte from MiRF register */
+uint8_t MIRF_get_register(uint8_t reg)
 {
-	_delay_us(10);
-	CSN_low; // Pull down chip select
-	_delay_us(10);
+	CSN_low;
 	SPI_transfer(R_REGISTER | (REGISTER_MASK & reg));
-	_delay_us(10);
-	reg = SPI_transfer(NOP); // Read status register
-	CSN_high; // Pull up chip select
+	reg = SPI_transfer(NOP);
+	CSN_high;
 
 	return reg;
 }
 
-// Write one byte into the MiRF register
-void mirf_config_register(uint8_t reg, uint8_t value)
+/* Write one byte into the MiRF register */
+void MIRF_set_register(uint8_t reg, uint8_t value)
 {
 	CSN_low;
 	SPI_transfer(W_REGISTER | (REGISTER_MASK & reg));
@@ -42,8 +108,8 @@ void mirf_config_register(uint8_t reg, uint8_t value)
 	CSN_high;
 }
 
-// Reads an array of bytes from the MiRF registers.
-void mirf_read_register(uint8_t reg, uint8_t *value, uint8_t len)
+/* Read an array of bytes from the MiRF register */
+void MIRF_read_register(uint8_t reg, uint8_t *value, uint8_t len)
 {
 	CSN_low;
 	SPI_transfer(R_REGISTER | (REGISTER_MASK & reg));
@@ -51,8 +117,8 @@ void mirf_read_register(uint8_t reg, uint8_t *value, uint8_t len)
 	CSN_high;
 }
 
-// Writes an array of bytes into the MiRF register
-void mirf_write_register(uint8_t reg, uint8_t *value, uint8_t len)
+/* Write an array of bytes into the MiRF register */
+void MIRF_write_register(uint8_t reg, uint8_t *value, uint8_t len)
 {
 	CSN_low;
 	SPI_transfer(W_REGISTER | (REGISTER_MASK & reg));
@@ -60,100 +126,95 @@ void mirf_write_register(uint8_t reg, uint8_t *value, uint8_t len)
 	CSN_high;
 }
 
-void nrf24l01_init(void)
+/* Send a data package to the given address. Be sure to send the
+ * correct amount of bytes as configured as payload on the receiver
+ * Returns 1 if data transmission is successful and 0 if not */
+uint8_t MIRF_send_data(uint8_t *address, uint8_t *data, uint8_t payload_size)
 {
-	_delay_ms(100);	//allow radio to reach power down if shut down
+	CSN_low;
+	SPI_transfer(FLUSH_TX);
+	CSN_high;
 
-	//mirf_config_register(SETUP_RETR, 0xFF);
-	
-	mirf_config_register(EN_RXADDR, 1<<ERX_P0); //enable data pipe 0
-	
-	mirf_config_register(RX_PW_P0, 1); // set number of bytes in RX payload
+    /* --------------------------------------------------- */
+    /* Enable RX pipe 0 if it's not already
+     * I can't think why someone would disable RX[0],
+     * but if he did, probably there was a good reason and
+     * it's better to keep that way after the transmission */
+    uint8_t  mask_changed = 0;
+    if(!(_mask_pipe & 1)) {
+        _mask_pipe |= 1;
+        MIRF_set_register(EN_RXADDR, _mask_pipe);
+        _mask_pipe &= ~1;
+        mask_changed = 1;
+    }
+    /* --------------------------------------------------- */
 
-	/*val[0]=0x03;
-	read_write_nrf(W, SETUP_AW, val, 1); //0b0000 00011 = 5 bits*/
+    /* ------------------------------------ */
+    /* Store the address of RX pipe 0
+     * to restore it after the transmission */
+    uint8_t previous_address[ADDR_SIZE];
+    MIRF_read_register(RX_ADDR_P0, previous_address, ADDR_SIZE);
+    /* ------------------------------------ */
 
-	/*val[0]=0x01;
-	read_write_nrf(W, RF_CH, val, 1); //RF channel registry 0b0000 0001 = 2,401GHz*/
+    /* The RX[0] and TX addresses must be the same because
+     * of the auto acknowldgement mecanism  */
+	MIRF_write_register(TX_ADDR, address, ADDR_SIZE);
+	MIRF_write_register(RX_ADDR_P0, address, ADDR_SIZE);
 
-	/*val[0]=0x07;
-	read_write_nrf(W, RF_SETUP, val, 1); //0b00000111*/
+	CSN_low;
+    /* Send the command to write the payload */
+	SPI_transfer(W_TX_PAYLOAD);
+    /* Write the payload */
+	SPI_write_data(data, payload_size);
+	CSN_high;
 
-	uint8_t mirf_config = 10;// 0b1010
-	mirf_config_register(CONFIG, mirf_config);
-
-	//device need 1.5ms to reach standby mode
-	_delay_ms(100);	
-
-    DDRB |= (1 << DDB1);
-    CE_low;
-}
-
-// Sends a data package to the default address. Be sure to send the correct
-// amount of bytes as configured as payload on the receiver.
-uint8_t mirf_send(uint8_t *value, uint8_t len, uint8_t *address)
-{
-	CSN_low; // Pull down chip select
-	SPI_transfer(FLUSH_TX);  // Write cmd to flush tx fifo
-	CSN_high; // Pull up chip select
-
-	// set the adress of the receiving chip
-	mirf_write_register(RX_ADDR_P0, address, 5);
-	mirf_write_register(TX_ADDR, address, 5);
-	
-	CSN_low;  // Pull down chip select
-	SPI_transfer(W_TX_PAYLOAD); // Write cmd to write payload
-	SPI_write_data(value, len); // Write payload
-	CSN_high; // Pull up chip select
-	
-	CE_high; // Start transmission
-	_delay_us(20);
+    /* Start the transmission */
+	CE_high;
+    /* Wait for transmission success or failure */
+    while(!(MIRF_DATA_SENT || MIRF_MAX_RT_REACHED));
 	CE_low;
+    _delay_us(10);
 
-	// If maximum retries were reached, reset MAX_RT
-	if(mirf_max_rt_reached()) {
-		mirf_config_register(STATUS, 1<<MAX_RT);
-		return 0;
+    /* ----------------------------------------------- */
+    /* Restore the pipes status. I presume an extra
+     * comparison is better than an unecessary SPI
+     * communication if the pipe 0 was already enabled */
+    if(mask_changed) {
+        MIRF_set_register(EN_RXADDR, _mask_pipe);
+    }
+    /* ----------------------------------------------- */
+
+    /* Restore the previous RX pipe 0 */
+	MIRF_write_register(RX_ADDR_P0, previous_address, ADDR_SIZE);
+
+	if(MIRF_MAX_RT_REACHED) {
+        /* Reset MAX_RT */
+        MIRF_set_register(STATUS, 1<<MAX_RT);
+        return 0;
 	} else {
-		return 1;
+        /* Reset TX_DS */
+        MIRF_set_register(STATUS, 1<<TX_DS);
+        return 1;
 	}
 }
 
-void mirf_flush_rx_tx(void)
-{
-	CSN_low; // Pull down chip select
-	SPI_transfer(FLUSH_RX); // Flush RX
-	CSN_high; // Pull up chip select
-	CSN_low; // Pull down chip select
-	SPI_transfer(FLUSH_TX);  // Write cmd to flush tx fifo
-	CSN_high; // Pull up chip select
-}
-
-// Checks if MAX_RT has been reached
-uint8_t mirf_max_rt_reached(void)
-{
-	CSN_low; // Pull down chip select
-	SPI_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
-	uint8_t status = SPI_transfer(NOP); // Read status register
-	CSN_high; // Pull up chip select
-	return status & (1<<MAX_RT);
-}
-
-uint8_t mirf_data_ready(void)
+/* Flush the RX and TX payloads */
+void MIRF_flush_rx_tx(void)
 {
 	CSN_low;
-
-	SPI_transfer(R_REGISTER | (REGISTER_MASK & STATUS));
-	uint8_t status = SPI_transfer(NOP);
+	SPI_transfer(FLUSH_RX);
+	SPI_transfer(FLUSH_TX);
 	CSN_high;
-	return status & (1<<RX_DR);
 }
 
-void mirf_get_data(uint8_t *data, uint8_t buffersize)
+/* Wait for data and read it when it arrives */
+void MIRF_receive_data(uint8_t *data, uint8_t payload_size)
 {
+    MIRF_flush_rx_tx();
+    while(!(MIRF_DATA_READY));
 	CSN_low;
 	SPI_transfer(R_RX_PAYLOAD);
-	SPI_read_data(data, buffersize);
+	SPI_read_data(data, payload_size);
 	CSN_high;
-	mirf_config_register(STATUS, (1<<RX_DR));
+	MIRF_set_register(STATUS, (1<<RX_DR));
 }
