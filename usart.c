@@ -8,7 +8,7 @@
 void USART_init(void)
 {
 	/* UBRR -> USART Baud Rate Registers - 12 bits */
-    /* Set the baud rate calculated by <util/detbaud.h> */
+	/* Set the baud rate calculated by <util/detbaud.h> */
 
 	/* 4 most significant bits */
 	UBRR0H = UBRRH_VALUE;

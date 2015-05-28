@@ -11,6 +11,14 @@
 #include <avr/io.h>
 #include <util/setbaud.h>
 
+#define USART_enable_rx_interrupt UCSR0B |= _BV(RXCIE0)
+
+#define USART_disable_rx_interrupt UCSR0B &= ~_BV(RXCIE0)
+
+#define USART_enable_udr_interrupt UCSR0B |= _BV(UDRIE0)
+
+#define USART_disable_udr_interrupt UCSR0B &= ~_BV(UDRIE0)
+
 void USART_init(void);
 
 void USART_transmit_byte(uint8_t data);
