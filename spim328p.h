@@ -8,9 +8,17 @@
 
 /* Define a default CSN (Chip Select Not) */
 /* Also known as SS (Slave Select) */
+#ifndef CSN_DDR
 #define CSN_DDR DDRB
+#endif
+
+#ifndef CSN_PORT
 #define CSN_PORT PORTB
+#endif
+
+#ifndef CSN
 #define CSN PB2
+#endif
 
 /* Transmission disabled on this port */
 #define CSN_high	CSN_PORT |=  _BV(CSN);

@@ -1,19 +1,17 @@
 #include "spi.h"
 
-#define DUMMY 0xFF
-
-void SPI_write_data(uint8_t *dataout, uint8_t length)
+void SPI_write_data(uint8_t *data, uint8_t length)
 {
 	uint8_t i;
 	for (i = 0; i < length; i++) {
-		SPI_transfer(dataout[i]);
+		SPI_transfer(data[i]);
 	}
 }
 
-void SPI_read_data(uint8_t *datain, uint8_t length)
+void SPI_read_data(uint8_t *data, uint8_t length)
 {
 	uint8_t i;
 	for (i = 0; i < length; i++) {
-		datain[i] = SPI_transfer(DUMMY);
+		data[i] = SPI_transfer(0xFF);
 	}
 }

@@ -16,8 +16,8 @@ extern void SPI_init_master(void);
 
 extern uint8_t SPI_transfer(uint8_t data);
 
-void SPI_write_data(uint8_t *dataout, uint8_t length);
+void SPI_write_data(uint8_t *data, uint8_t length);
 
-void SPI_read_data(uint8_t *datain, uint8_t length);
+void SPI_read_data(uint8_t* data, uint8_t length);
 
 #endif
