@@ -2,11 +2,11 @@
 #define USART_H
 
 /* USART - Universal Synchronous Asynchronous Receiver Transmitter */
-/* Functions implementations to use the Programmable Serial USART of
- * the AVR microcontrollers. Tested only on the ATmega series but problaby works
- * on other models that have this feature.
- * This implementation is intented to be used only as asynchronous mode (UART),
- * but the name USART was kept due to the registers names and descriptions */
+/* Functions to use the Programmable Serial USART of
+|* the AVR microcontrollers. Tested only on the ATmega series but problaby works
+|* on other models that have this feature.
+|* This implementation is intented to be used only as asynchronous mode (UART),
+|* but the name USART was kept due to the registers names and descriptions */
 
 #include <avr/io.h>
 #include <util/setbaud.h>

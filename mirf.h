@@ -56,7 +56,7 @@
 /* MASK_MAX_RT - Mask Interrupt caused by MAX_RT */
 /* EN_CRC - Enable CRC */
 /* CRCO - CRC encoding scheme ('0' - 1 byte | '1' - 2 bytes */
-/* All interrupts reflected on IRQ pind, CRC enabled and 1 byte encoding scheme */
+/* All interrupts reflected on IRQ pin, CRC enabled and 1 byte encoding scheme */
 #define MIRF_CONFIG (0<<MASK_RX_DR | 0<<MASK_TX_DS | 0<<MASK_MAX_RT | 1<<EN_CRC | 0<<CRCO)
 #endif
 /* --------------------------------------- */
@@ -65,10 +65,10 @@
 /* The nRF24L01 must always settle in Standby for 1.5ms
  * before it cant enter on the TX or RX modes */
 #define MIRF_TX_POWER_UP MIRF_set_register(CONFIG, (MIRF_CONFIG | (1<<PWR_UP)) & ~(1<<PRIM_RX));\
-    _delay_ms(5);CE_low
+	_delay_ms(5);CE_low
 
 #define MIRF_RX_POWER_UP MIRF_set_register(CONFIG, MIRF_CONFIG | (1<<PWR_UP) | (1<<PRIM_RX));\
-    _delay_ms(5);CE_high
+	_delay_ms(5);CE_high
 
 #define MIRF_POWER_DOWN MIRF_set_register(CONFIG, MIRF_CONFIG & ~(1<<PWR_UP))
 /* --------------------------------------- */

@@ -4,30 +4,30 @@
 /* Set the defined configurations and set the CE pin as output */
 void MIRF_setup_configuration(void)
 {
-    /* Small delay to be sure that the nRF24L01 module is turned on */
+	/* Small delay to be sure that the nRF24L01 module is turned on */
 	_delay_ms(10);
 
-    /* SETUP_AW - Setup of Address Width (commom for all data pipes) */
-    MIRF_set_register(SETUP_AW, MIRF_AW);
+	/* SETUP_AW - Setup of Address Width (commom for all data pipes) */
+	MIRF_set_register(SETUP_AW, MIRF_AW);
 
-    /* SETUP_RETR - Setup of Automatic Retransmission */
+	/* SETUP_RETR - Setup of Automatic Retransmission */
 	MIRF_set_register(SETUP_RETR, MIRF_RETR);
 
-    /* RF_CH - Radio Frequency Channel */
-    MIRF_set_register(RF_CH, MIRF_CH);
+	/* RF_CH - Radio Frequency Channel */
+	MIRF_set_register(RF_CH, MIRF_CH);
 
-    /* RF_Setup - Radio Frequency Setup Register */
-    MIRF_set_register(RF_SETUP, MIRF_SETUP);
+	/* RF_Setup - Radio Frequency Setup Register */
+	MIRF_set_register(RF_SETUP, MIRF_SETUP);
 
-    /* CONFIG - Configuration Register */
+	/* CONFIG - Configuration Register */
 	MIRF_set_register(CONFIG, MIRF_CONFIG);
 
-    /* Set CE pin as output */
-    CE_DDR |= _BV(CE);
+	/* Set CE pin as output */
+	CE_DDR |= _BV(CE);
 }
 
 /* Keep record of the current pipes status
- * By default, pipes 0 and 1 are already activated */
+ * Pipes 0 and 1 are activated by default */
 static volatile uint8_t _mask_pipe = 3;
 /* Enable given RX data pipe [5:0] with auto acknowledgment,
  * set its payload_size[32:0](bytes) and set the RX
@@ -35,46 +35,45 @@ static volatile uint8_t _mask_pipe = 3;
  * same 4 most signifcant bytes */
 void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address)
 {
-    _mask_pipe |= _BV(pipe);
-    /* EN_RXADDR - Enabled RX Addressess [5:0] */
-    MIRF_set_register(EN_RXADDR, _mask_pipe);
-    /* EN_AA - Enable Auto Acknowledgement Function [5:0] */
-    MIRF_set_register(EN_AA, _mask_pipe);
-
-    /* Set the payload_size in the respective pipe */
-    switch (pipe) {
-        case 0:
-            MIRF_set_register(RX_PW_P0, payload_size);
-            MIRF_write_register(RX_ADDR_P0, address, ADDR_SIZE);
-            break;
-        case 1:
-            MIRF_set_register(RX_PW_P1, payload_size);
-            MIRF_write_register(RX_ADDR_P1, address, ADDR_SIZE);
-            break;
-        case 2:
-            MIRF_set_register(RX_PW_P2, payload_size);
-            MIRF_write_register(RX_ADDR_P2, address, ADDR_SIZE);
-            break;
-        case 3:
-            MIRF_set_register(RX_PW_P3, payload_size);
-            MIRF_write_register(RX_ADDR_P3, address, ADDR_SIZE);
-            break;
-        case 4:
-            MIRF_set_register(RX_PW_P4, payload_size);
-            MIRF_write_register(RX_ADDR_P4, address, ADDR_SIZE);
-            break;
-        case 5:
-            MIRF_set_register(RX_PW_P5, payload_size);
-            MIRF_write_register(RX_ADDR_P5, address, ADDR_SIZE);
-            break;
-    }
+	_mask_pipe |= _BV(pipe);
+	/* EN_RXADDR - Enabled RX Addressess [5:0] */
+	MIRF_set_register(EN_RXADDR, _mask_pipe);
+	/* EN_AA - Enable Auto Acknowledgement Function [5:0] */
+	MIRF_set_register(EN_AA, _mask_pipe);
+	/* Set the payload_size in the respective pipe */
+	switch (pipe) {
+		case 0:
+			MIRF_set_register(RX_PW_P0, payload_size);
+			MIRF_write_register(RX_ADDR_P0, address, ADDR_SIZE);
+			break;
+		case 1:
+			MIRF_set_register(RX_PW_P1, payload_size);
+			MIRF_write_register(RX_ADDR_P1, address, ADDR_SIZE);
+			break;
+		case 2:
+			MIRF_set_register(RX_PW_P2, payload_size);
+			MIRF_write_register(RX_ADDR_P2, address, ADDR_SIZE);
+			break;
+		case 3:
+			MIRF_set_register(RX_PW_P3, payload_size);
+			MIRF_write_register(RX_ADDR_P3, address, ADDR_SIZE);
+			break;
+		case 4:
+			MIRF_set_register(RX_PW_P4, payload_size);
+			MIRF_write_register(RX_ADDR_P4, address, ADDR_SIZE);
+			break;
+		case 5:
+			MIRF_set_register(RX_PW_P5, payload_size);
+			MIRF_write_register(RX_ADDR_P5, address, ADDR_SIZE);
+			break;
+	}
 }
 
 /* Disable given RX pipe [5:0] */
 void MIRF_disable_rx_pipe(uint8_t pipe)
 {
-    _mask_pipe &= ~_BV(pipe);
-    MIRF_set_register(EN_RXADDR, _mask_pipe);
+	_mask_pipe &= ~_BV(pipe);
+	MIRF_set_register(EN_RXADDR, _mask_pipe);
 }
 
 /* Read the Status Register */
@@ -135,66 +134,66 @@ uint8_t MIRF_send_data(uint8_t *address, uint8_t *data, uint8_t payload_size)
 	SPI_transfer(FLUSH_TX);
 	CSN_high;
 
-    /* --------------------------------------------------- */
-    /* Enable RX pipe 0 if it's not already
-     * I can't think why someone would disable RX[0],
-     * but if he did, probably there was a good reason and
-     * it's better to keep that way after the transmission */
-    uint8_t  mask_changed = 0;
-    if(!(_mask_pipe & 1)) {
-        _mask_pipe |= 1;
-        MIRF_set_register(EN_RXADDR, _mask_pipe);
-        _mask_pipe &= ~1;
-        mask_changed = 1;
-    }
-    /* --------------------------------------------------- */
+	/* --------------------------------------------------- */
+	/* Enable RX pipe 0 if it's not already
+	|* I can't think why someone would disable pipe RX[0],
+	|* but if he did, probably there was a good reason and
+	|* it's better to keep that way after the transmission */
+	uint8_t  mask_changed = 0;
+	if(!(_mask_pipe & 1)) {
+		_mask_pipe |= 1;
+		MIRF_set_register(EN_RXADDR, _mask_pipe);
+		_mask_pipe &= ~1;
+		mask_changed = 1;
+	}
+	/* --------------------------------------------------- */
 
-    /* ------------------------------------ */
-    /* Store the address of RX pipe 0
-     * to restore it after the transmission */
-    uint8_t previous_address[ADDR_SIZE];
-    MIRF_read_register(RX_ADDR_P0, previous_address, ADDR_SIZE);
-    /* ------------------------------------ */
+	/* ------------------------------------ */
+	/* Store the address of RX pipe 0
+	|* to restore it after the transmission */
+	uint8_t previous_address[ADDR_SIZE];
+	MIRF_read_register(RX_ADDR_P0, previous_address, ADDR_SIZE);
+	/* ------------------------------------ */
 
-    /* The RX[0] and TX addresses must be the same because
-     * of the auto acknowldgement mecanism  */
+	/* The RX[0] and TX addresses must be the same because
+	|* of the auto acknowldgement mecanism	*/
 	MIRF_write_register(TX_ADDR, address, ADDR_SIZE);
 	MIRF_write_register(RX_ADDR_P0, address, ADDR_SIZE);
 
 	CSN_low;
-    /* Send the command to write the payload */
+	/* Send the command to write the payload */
 	SPI_transfer(W_TX_PAYLOAD);
-    /* Write the payload */
+	/* Write the payload */
 	SPI_write_data(data, payload_size);
 	CSN_high;
 
-    /* Start the transmission */
+	/* Start the transmission */
 	CE_high;
-    /* Wait for transmission success or failure */
-    while(!(MIRF_DATA_SENT || MIRF_MAX_RT_REACHED));
+	/* Wait for transmission success or failure confirmation */
+	while(!(MIRF_DATA_SENT || MIRF_MAX_RT_REACHED));
 	CE_low;
-    _delay_us(10);
+	_delay_us(10);
 
-    /* ----------------------------------------------- */
-    /* Restore the pipes status. I presume an extra
-     * comparison is better than an unecessary SPI
-     * communication if the pipe 0 was already enabled */
-    if(mask_changed) {
-        MIRF_set_register(EN_RXADDR, _mask_pipe);
-    }
-    /* ----------------------------------------------- */
+	/* ----------------------------------------------- */
+	/* Restore the pipes status. I presume an extra
+	|* comparison is better than an unecessary SPI
+	|* communication if the pipe 0 was already enabled */
+	if(mask_changed) {
+		MIRF_set_register(EN_RXADDR, _mask_pipe);
+	}
+	/* ----------------------------------------------- */
 
-    /* Restore the previous RX pipe 0 */
+	/* Restore the previous RX pipe 0 */
 	MIRF_write_register(RX_ADDR_P0, previous_address, ADDR_SIZE);
 
 	if(MIRF_MAX_RT_REACHED) {
-        /* Reset MAX_RT */
-        MIRF_set_register(STATUS, 1<<MAX_RT);
-        return 0;
+		/* Reset MAX_RT */
+		MIRF_set_register(STATUS, 1<<MAX_RT);
+		return 0;
 	} else {
-        /* Reset TX_DS */
-        MIRF_set_register(STATUS, 1<<TX_DS);
-        return 1;
+		/* Reset TX_DS */
+		MIRF_set_register(STATUS, 1<<TX_DS);
+		return 1;
 	}
 }
 
@@ -210,8 +209,8 @@ void MIRF_flush_rx_tx(void)
 /* Wait for data and read it when it arrives */
 void MIRF_receive_data(uint8_t *data, uint8_t payload_size)
 {
-    MIRF_flush_rx_tx();
-    while(!(MIRF_DATA_READY));
+	MIRF_flush_rx_tx();
+	while(!(MIRF_DATA_READY));
 	CSN_low;
 	SPI_transfer(R_RX_PAYLOAD);
 	SPI_read_data(data, payload_size);
