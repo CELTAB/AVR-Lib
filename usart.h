@@ -25,8 +25,12 @@ void USART_transmit_byte(uint8_t data);
 
 uint8_t USART_receive_byte(void);
 
-void USART_print_byte(uint8_t byte);
+void USART_transmit_byte_array(uint8_t* byte_array, uint8_t size);
+
+void USART_receive_byte_array(uint8_t* byte_array, uint8_t size);
 
 void USART_print_string(const char string[]);
+
+void USART_print_byte_to_char(uint8_t byte);
 
 #endif

@@ -68,17 +68,37 @@ uint8_t USART_receive_byte(void)
 	return UDR0;
 }
 
-void USART_print_byte(uint8_t byte) {
-	/* Converts a byte to a string of decimal text, sends it */
-	USART_transmit_byte('0' + (byte / 100));			/* Hundreds */
-	USART_transmit_byte('0' + ((byte / 10) % 10));		/* Tens */
-	USART_transmit_byte('0' + (byte % 10));				/* Ones */
+void USART_transmit_byte_array(uint8_t* byte_array, uint8_t size)
+{
+	uint8_t i;
+	for(i = 0; i < size; i++) {
+		USART_transmit_byte(byte_array[i]);
+	}
 }
 
-void USART_print_string(const char string[]) {
+void USART_receive_byte_array(uint8_t* byte_array, uint8_t size)
+{
+	uint8_t i;
+	for(i = 0; i < size; i++) {
+		byte_array[i] = USART_receive_byte();
+	}
+}
+
+void USART_print_string(const char string[])
+{
 	uint8_t i = 0;
 	while (string[i]) {
 		USART_transmit_byte(string[i]);
 		i++;
 	}
 }
+
+void USART_print_byte_to_char(uint8_t byte)
+{
+	/* Converts a byte to a string of decimal text, sends it */
+	USART_transmit_byte('0' + (byte / 100));			/* Hundreds */
+	USART_transmit_byte('0' + ((byte / 10) % 10));		/* Tens */
+	USART_transmit_byte('0' + (byte % 10));				/* Ones */
+}
+
+
