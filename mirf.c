@@ -209,11 +209,17 @@ void MIRF_flush_rx_tx(void)
 /* Wait for data and read it when it arrives */
 void MIRF_receive_data(uint8_t *data, uint8_t payload_size)
 {
-	MIRF_flush_rx_tx();
 	while(!(MIRF_DATA_READY));
 	CSN_low;
 	SPI_transfer(R_RX_PAYLOAD);
 	SPI_read_data(data, payload_size);
 	CSN_high;
 	MIRF_set_register(STATUS, (1<<RX_DR));
+}
+
+void MIRF_clear_interrupt(void)
+{
+    MIRF_set_register(STATUS, 1<<MAX_RT);
+    MIRF_set_register(STATUS, 1<<RX_DR);
+    MIRF_set_register(STATUS, 1<<TX_DS);
 }

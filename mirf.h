@@ -115,4 +115,6 @@ void MIRF_flush_rx_tx(void);
 /* Wait for data and read it when it arrives */
 void MIRF_receive_data(uint8_t *data, uint8_t payload_size);
 
+void MIRF_clear_interrupt(void);
+
 #endif
