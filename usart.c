@@ -23,7 +23,7 @@ void USART_init(void)
 	UCSR0A |= _BV(U2X0);
 #else
 	/* Normal mode */
-	/* Normally not used */
+	/* Often not used */
 	UCSR0A &= ~(_BV(U2X0));
 #endif
 

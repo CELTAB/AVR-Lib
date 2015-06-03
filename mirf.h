@@ -44,7 +44,7 @@
 #endif
 
 #ifndef MIRF_SETUP
-/* RF_DR - Data Rate ('0' - 1 Mpbs | '1' - 2 Mpbs) */
+/* RF_DR - Data Rate ('0' - 1 Mbps | '1' - 2 Mbps) */
 /* RF_PWR - Output power in TX mode */
 /* 1 Mpbs data rate and 0dBm output power */
 #define MIRF_SETUP (0<<RF_DR | 3<<RF_PWR)
@@ -77,12 +77,13 @@
 #define MIRF_DATA_READY MIRF_status() & (1<<RX_DR)
 #define MIRF_DATA_SENT MIRF_status() & (1<<TX_DS)
 
-/* Set the defined configurations and set the CE pin as output */
+/* Set the defined configuration values, clear the interrupt flags
+ * and set the CE pin as output */
 void MIRF_setup_configuration(void);
 
-/* Enable given RX data pipe [5:0] with auto acknowledgment,
- * set its payload_size[32:0](bytes) and set the RX
- * address. Be aware that the pipes [5:1] share the
+/* Enable given RX data pipe[5:0] with auto acknowledgment,
+ * set its payload_size (0 to 32 bytes) and set the RX
+ * address. Be aware that the pipes 1 to 5 share the
  * same 4 most signifcant bytes */
 void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address);
 
@@ -115,6 +116,7 @@ void MIRF_flush_rx_tx(void);
 /* Wait for data and read it when it arrives */
 void MIRF_receive_data(uint8_t *data, uint8_t payload_size);
 
-void MIRF_clear_interrupt(void);
+/* Clear the flags for the RX_DR, TX_DS and MAX_RT interrupts */
+void MIRF_clear_all_interrupts(void);
 
 #endif

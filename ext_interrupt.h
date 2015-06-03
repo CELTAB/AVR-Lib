@@ -1,7 +1,8 @@
-#ifndef INTERRUPTS_H
-#define INTERRUPTS_H
+#ifndef EXT_INTERRUPTS_H
+#define EXT_INTERRUPTS_H
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 /* External Interrupt Sense Control Mnemonics */
 #define EISC_LOW_LEVEL 0
@@ -11,9 +12,9 @@
 
 /* Enable the given External Interrupt pin
  * and set the Sense Control Mode */
-void EINT_enable(uint8_t pin, uint8_t mode);
+void EINT_enable(uint8_t intx, uint8_t mode);
 
 /* Disable External Interrupt on the given pin */
-void EINT_disable(uint8_t pin);
+void EINT_disable(uint8_t intx);
 
 #endif

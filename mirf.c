@@ -1,7 +1,8 @@
 #include "mirf.h"
 #include "spi.h"
 
-/* Set the defined configurations and set the CE pin as output */
+/* Set the defined configuration values, clear the interrupt flags
+ * and set the CE pin as output */
 void MIRF_setup_configuration(void)
 {
 	/* Small delay to be sure that the nRF24L01 module is turned on */
@@ -22,6 +23,8 @@ void MIRF_setup_configuration(void)
 	/* CONFIG - Configuration Register */
 	MIRF_set_register(CONFIG, MIRF_CONFIG);
 
+	MIRF_clear_all_interrupts();
+
 	/* Set CE pin as output */
 	CE_DDR |= _BV(CE);
 }
@@ -29,9 +32,9 @@ void MIRF_setup_configuration(void)
 /* Keep record of the current pipes status
  * Pipes 0 and 1 are activated by default */
 static volatile uint8_t _mask_pipe = 3;
-/* Enable given RX data pipe [5:0] with auto acknowledgment,
- * set its payload_size[32:0](bytes) and set the RX
- * address. Be aware that the pipes [5:1] share the
+/* Enable given RX data pipe[5:0] with auto acknowledgment,
+ * set its payload_size (0 to 32 bytes) and set the RX
+ * address. Be aware that the pipes 1 to 5 share the
  * same 4 most signifcant bytes */
 void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address)
 {
@@ -40,7 +43,7 @@ void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address)
 	MIRF_set_register(EN_RXADDR, _mask_pipe);
 	/* EN_AA - Enable Auto Acknowledgement Function [5:0] */
 	MIRF_set_register(EN_AA, _mask_pipe);
-	/* Set the payload_size in the respective pipe */
+	/* Set the payload_size and the address in the respective pipe */
 	switch (pipe) {
 		case 0:
 			MIRF_set_register(RX_PW_P0, payload_size);
@@ -139,12 +142,10 @@ uint8_t MIRF_send_data(uint8_t *address, uint8_t *data, uint8_t payload_size)
 	|* I can't think why someone would disable pipe RX[0],
 	|* but if he did, probably there was a good reason and
 	|* it's better to keep that way after the transmission */
-	uint8_t  mask_changed = 0;
 	if(!(_mask_pipe & 1)) {
 		_mask_pipe |= 1;
 		MIRF_set_register(EN_RXADDR, _mask_pipe);
 		_mask_pipe &= ~1;
-		mask_changed = 1;
 	}
 	/* --------------------------------------------------- */
 
@@ -178,7 +179,7 @@ uint8_t MIRF_send_data(uint8_t *address, uint8_t *data, uint8_t payload_size)
 	/* Restore the pipes status. I presume an extra
 	|* comparison is better than an unecessary SPI
 	|* communication if the pipe 0 was already enabled */
-	if(mask_changed) {
+	if(!(_mask_pipe & 1)) {
 		MIRF_set_register(EN_RXADDR, _mask_pipe);
 	}
 	/* ----------------------------------------------- */
@@ -217,7 +218,8 @@ void MIRF_receive_data(uint8_t *data, uint8_t payload_size)
 	MIRF_set_register(STATUS, (1<<RX_DR));
 }
 
-void MIRF_clear_interrupt(void)
+/* Clear the flags for the RX_DR, TX_DS and MAX_RT interrupts */
+void MIRF_clear_all_interrupts(void)
 {
     MIRF_set_register(STATUS, 1<<MAX_RT);
     MIRF_set_register(STATUS, 1<<RX_DR);
