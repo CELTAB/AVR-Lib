@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> d24ce5c3a4d59f0a26490f3045c16d25c8c60a23
 ##########------------------------------------------------------##########
 ##########              Project-specific Details                ##########
 ##########    Check these every time you start a new project    ##########
@@ -26,9 +29,15 @@ EXTRA_SOURCE_FILES =
 ##########        (Can override.  See bottom of file.)          ##########
 ##########------------------------------------------------------##########
 
+<<<<<<< HEAD
 PROGRAMMER_TYPE = avrisp
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
 PROGRAMMER_ARGS = -F -V -c $(PROGRAMMER_TYPE) -P /dev/ttyACM0 -b 19200
+=======
+PROGRAMMER_TYPE = usbasp
+# extra arguments to avrdude: baud rate, chip type, -F flag, etc.
+PROGRAMMER_ARGS = -F -V -c $(PROGRAMMER_TYPE) -P /dev/ttyACM0 -b $(BAUD)
+>>>>>>> d24ce5c3a4d59f0a26490f3045c16d25c8c60a23
 
 ##########------------------------------------------------------##########
 ##########                   Makefile Magic!                    ##########
