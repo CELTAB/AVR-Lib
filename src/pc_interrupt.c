@@ -1,4 +1,4 @@
-#include "pc_interrupt.h"
+#include <avrutil/pc_interrupt.h>
 
 /* Enable one of the pin change interrupts avaiable specified by pciex
  * and select which I/O pin will cause the interrupt by setting the

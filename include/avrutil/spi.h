@@ -4,7 +4,7 @@
 #include <avr/io.h>
 
 #if defined (__AVR_ATmega328P__) || defined (__AVR_ATmega328__)
-#include "spim328p.h"
+#include <avrutil/spim328p.h>
 #endif
 
 /* The definitions of the CSN PORT are defined in

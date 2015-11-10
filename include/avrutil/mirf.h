@@ -3,7 +3,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include "nrf24l01.h"
+#include <avrutil/nrf24l01.h>
 
 #ifndef CE
 #define CE DDB1

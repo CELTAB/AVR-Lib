@@ -1,4 +1,4 @@
-#include "ext_interrupt.h"
+#include <avrutil/ext_interrupt.h>
 
 /* Enable the given External Interrupt pin
  * and set the Sense Control Mode */

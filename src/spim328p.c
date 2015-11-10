@@ -1,4 +1,4 @@
-#include "spim328p.h"
+#include <avrutil/spim328p.h>
 
 void SPI_init_master(void)
 {

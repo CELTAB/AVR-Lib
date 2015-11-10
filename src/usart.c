@@ -1,4 +1,4 @@
-#include "usart.h"
+#include <avrutil/usart.h>
 
 /* UCSRnX - USART Control and Status Register n X */
 /* UDRn - USART I/O Data Register n */

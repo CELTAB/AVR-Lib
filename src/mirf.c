@@ -1,5 +1,5 @@
-#include "mirf.h"
-#include "spi.h"
+#include <avrutil/mirf.h>
+#include <avrutil/spi.h>
 
 /* Set the defined configuration values, clear the interrupt flags
  * and set the CE pin as output */

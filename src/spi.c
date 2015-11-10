@@ -1,4 +1,4 @@
-#include "spi.h"
+#include <avrutil/spi.h>
 
 void SPI_write_data(uint8_t *data, uint8_t length)
 {
