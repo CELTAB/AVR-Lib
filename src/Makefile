@@ -5,7 +5,7 @@ MCU   = atmega328p
 F_CPU = 8000000
 BAUD = 19200
 
-CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU)UL -DBAUD=$(BAUD) -Os -I ../include
+CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU)UL -DBAUD=$(BAUD) -Os -isystem ../include
 CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 CFLAGS += -Wall -Wstrict-prototypes
 CFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections -Wl,--relax

@@ -93,10 +93,18 @@ void USART_print_string(const char string[])
 	}
 }
 
-void USART_print_byte_to_char(uint8_t byte)
+void USART_print_byte(uint8_t byte)
 {
-	/* Converts a byte to a string of decimal text, sends it */
-	USART_transmit_byte('0' + (byte / 100));			/* Hundreds */
-	USART_transmit_byte('0' + ((byte / 10) % 10));		/* Tens */
-	USART_transmit_byte('0' + (byte % 10));				/* Ones */
+	USART_transmit_byte('0' + (byte / 100));
+	USART_transmit_byte('0' + ((byte / 10) % 10));
+	USART_transmit_byte('0' + (byte % 10));
+}
+
+void USART_print_word(uint16_t word)
+{
+	USART_transmit_byte('0' + (word / 10000));
+	USART_transmit_byte('0' + ((word / 1000) % 10));
+	USART_transmit_byte('0' + ((word / 100) % 10));
+	USART_transmit_byte('0' + ((word / 10) % 10));
+	USART_transmit_byte('0' + (word % 10));
 }

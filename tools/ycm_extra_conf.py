@@ -25,7 +25,7 @@ flags = [
     # relevant for c++ headers.
     # For a C project, you would set this to 'c' instead of 'c++'.
     '-x', 'c',
-    '-DF_CPU=1000000UL',
+    '-DF_CPU=8000000UL',
     '-D__AVR_ATmega328P__',
     '-isystem', '/usr/include/',
     '-isystem', '/usr/avr/include/',

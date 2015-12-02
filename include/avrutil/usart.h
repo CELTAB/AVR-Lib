@@ -31,6 +31,8 @@ void USART_receive_byte_array(uint8_t* byte_array, uint8_t size);
 
 void USART_print_string(const char string[]);
 
-void USART_print_byte_to_char(uint8_t byte);
+void USART_print_byte(uint8_t byte);
+
+void USART_print_word(uint16_t word);
 
 #endif
