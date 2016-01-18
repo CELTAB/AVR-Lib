@@ -1,5 +1,6 @@
 /*
 	Copyright (c) 2007 Stefan Engelke <mbox@stefanengelke.de>
+	Copyright (c) 2016 Augusto Lopez Dantas <aldantas@protonmail.com>
 
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
@@ -21,7 +22,6 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 	DEALINGS IN THE SOFTWARE.
 
-	$Id$
 */
 
 /* Memory Map */
@@ -49,6 +49,8 @@
 #define RX_PW_P4    0x15
 #define RX_PW_P5    0x16
 #define FIFO_STATUS 0x17
+#define DYNPD       0x1C
+#define FEATURE     0x1D
 
 /* Bit Mnemonics */
 #define MASK_RX_DR  6
@@ -89,14 +91,27 @@
 #define TX_EMPTY    4
 #define RX_FULL     1
 #define RX_EMPTY    0
+#define DPL_P5      5
+#define DPL_P4      4
+#define DPL_P3      3
+#define DPL_P2      2
+#define DPL_P1      1
+#define DPL_P0      0
+#define EN_DPL      2
+#define EN_ACK_PAY  1
+#define EN_DYN_ACK  0
 
 /* Instruction Mnemonics */
-#define R_REGISTER    0x00
-#define W_REGISTER    0x20
-#define REGISTER_MASK 0x1F
-#define R_RX_PAYLOAD  0x61
-#define W_TX_PAYLOAD  0xA0
-#define FLUSH_TX      0xE1
-#define FLUSH_RX      0xE2
-#define REUSE_TX_PL   0xE3
-#define NOP           0xFF
+#define R_REGISTER       0x00
+#define W_REGISTER       0x20
+#define REGISTER_MASK    0x1F
+#define R_RX_PAYLOAD     0x61
+#define W_TX_PAYLOAD     0xA0
+#define FLUSH_TX         0xE1
+#define FLUSH_RX         0xE2
+#define REUSE_TX_PL      0xE3
+#define R_RX_PL_WID      0x60
+#define W_ACK_PAYLOAD    0xA8
+#define ACK_PAYLOAD_MASK 0x07
+#define W_TX_PAYLOAD_NO  0xB0
+#define NOP              0xFF

@@ -35,12 +35,12 @@
 /* ARD - Auto Retransmit Delay */
 /* ARC - Auto Retransmit Count */
 /* 1000 us retransmit delay and 10 retransmit count */
-#define MIRF_RETR (3<<ARD | 10<<ARC)
+#define MIRF_RETR (5<<ARD | 15<<ARC)
 #endif
 
 #ifndef MIRF_CH
 /* 2.4 + 0.042 GHz frequency */
-#define MIRF_CH 100
+#define MIRF_CH 42
 #endif
 
 #ifndef MIRF_SETUP
@@ -92,14 +92,31 @@ void MIRF_setup_config(void);
  * enter in the Standby-I mode */
 void MIRF_init(void);
 
-/* Enable given RX data pipe[5:0] with auto acknowledgment,
- * set its payload_size (0 to 32 bytes) and set the RX
- * address. Be aware that the pipes 1 to 5 share the
- * same 4 most signifcant bytes */
+/* Enable given RX data pipe[5:0] with auto acknowledgment
+ * and set the RX address. Be aware that the pipes 1 to 5 share the
+ * same 4 most signifcant bytes.
+ * If ack_pay is different than zero, it will enable the dynamic payload
+ * and ACK payload features.
+ * If ack_pay and payload_size are equal to zero, it will enable just the
+ * dynamic payload feature.
+ * If ack_pay is zero and payload_size is different than zero, it will set
+ * the given RX pipe payload_size (0 to 32 bytes) */
 void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address);
 
 /* Disable given RX pipe [5:0] */
 void MIRF_disable_rx_pipe(uint8_t pipe);
+
+/* Enable dynamic payload feature */
+void MIRF_enable_dynamic_payload(void);
+
+/* Disable dynamic payload feature */
+void MIRF_disable_dynamic_payload(void);
+
+/* Enable ack payload feature */
+void MIRF_enable_ack_payload(void);
+
+/* Disable ack payload feature */
+void MIRF_disable_ack_payload(void);
 
 /* Read the Status Register */
 uint8_t MIRF_status(void);
@@ -127,6 +144,10 @@ void MIRF_read_register(uint8_t reg, uint8_t *value, uint8_t len);
 
 /* Write an array of bytes into the MiRF register */
 void MIRF_write_register(uint8_t reg, uint8_t *value, uint8_t len);
+
+/* Write an array of bytes into the W_ACK_PAYLOAD  register with the
+ * given pipe */
+void MIRF_write_ack_payload(uint8_t pipe, uint8_t *value, uint8_t len);
 
 /* Send a data package to the given address. Be sure to send the
  * correct amount of bytes as configured as payload on the receiver.
@@ -157,8 +178,12 @@ void MIRF_flush_tx(void);
 /* Wait for data and read it when it arrives */
 void MIRF_receive_data(uint8_t *data, uint8_t payload_size);
 
-/* Read the RX Payload */
+/* Read the RX payload */
 void MIRF_read_data(uint8_t *data, uint8_t payload_size);
+
+/* Read the top RX payload size and then read the
+ * RX payload with the read value */
+void MIRF_read_dynamic_payload_data(uint8_t *data);
 
 /* Clear the flags for the RX_DR, TX_DS and MAX_RT interrupts */
 void MIRF_clear_all_interrupts(void);
