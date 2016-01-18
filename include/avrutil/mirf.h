@@ -34,20 +34,20 @@
 #ifndef MIRF_RETR
 /* ARD - Auto Retransmit Delay */
 /* ARC - Auto Retransmit Count */
-/* 250+86uS retransmit delay and 3 retransmit count */
-#define MIRF_RETR (0<<ARD | 3<<ARC)
+/* 1000 us retransmit delay and 10 retransmit count */
+#define MIRF_RETR (3<<ARD | 10<<ARC)
 #endif
 
 #ifndef MIRF_CH
 /* 2.4 + 0.042 GHz frequency */
-#define MIRF_CH 42
+#define MIRF_CH 100
 #endif
 
 #ifndef MIRF_SETUP
 /* RF_DR - Data Rate ('0' - 1 Mbps | '1' - 2 Mbps) */
 /* RF_PWR - Output power in TX mode */
 /* 1 Mpbs data rate and 0dBm output power */
-#define MIRF_SETUP (0<<RF_DR | 3<<RF_PWR)
+#define MIRF_SETUP (1<<RF_DR | 3<<RF_PWR)
 #endif
 
 #ifndef MIRF_CONFIG
@@ -62,24 +62,35 @@
 /* --------------------------------------- */
 
 /* --------------------------------------- */
-/* The nRF24L01 must always settle in Standby for 1.5ms
- * before it cant enter on the TX or RX modes */
-#define MIRF_TX_POWER_UP MIRF_set_register(CONFIG, (MIRF_CONFIG | (1<<PWR_UP)) & ~(1<<PRIM_RX));\
-	_delay_ms(5);CE_low
+#define MIRF_POWER_UP MIRF_set_register_bit(CONFIG, PWR_UP);\
+	_delay_ms(4)
 
-#define MIRF_RX_POWER_UP MIRF_set_register(CONFIG, MIRF_CONFIG | (1<<PWR_UP) | (1<<PRIM_RX));\
-	_delay_ms(5);CE_high
+#define MIRF_POWER_DOWN MIRF_clear_register_bit(CONFIG, PWR_UP)
 
-#define MIRF_POWER_DOWN MIRF_set_register(CONFIG, MIRF_CONFIG & ~(1<<PWR_UP))
+/* CE_low before entering TX mode to prevent unwanted transmission */
+#define MIRF_TX CE_low; MIRF_clear_register_bit(CONFIG, PRIM_RX);\
+	_delay_us(130)
+
+#define MIRF_RX MIRF_set_register_bit(CONFIG, PRIM_RX);\
+	CE_high; _delay_us(130)
+
 /* --------------------------------------- */
 
 #define MIRF_MAX_RT_REACHED MIRF_status() & (1<<MAX_RT)
 #define MIRF_DATA_READY MIRF_status() & (1<<RX_DR)
 #define MIRF_DATA_SENT MIRF_status() & (1<<TX_DS)
 
-/* Set the defined configuration values, clear the interrupt flags
- * and set the CE pin as output */
-void MIRF_setup_configuration(void);
+#define MIRF_CLEAR_MAX_RT MIRF_set_register_bit(STATUS, MAX_RT);
+#define MIRF_CLEAR_RX_DR MIRF_set_register_bit(STATUS, RX_DR);
+#define MIRF_CLEAR_TX_DS MIRF_set_register_bit(STATUS, TX_DS);
+
+/* Set the configuration registers with the defined values
+ * and the CE pin as output */
+void MIRF_setup_config(void);
+
+/* Clear the interrupt flags, the RX and TX FIFOs and
+ * enter in the Standby-I mode */
+void MIRF_init(void);
 
 /* Enable given RX data pipe[5:0] with auto acknowledgment,
  * set its payload_size (0 to 32 bytes) and set the RX
@@ -99,6 +110,18 @@ uint8_t MIRF_get_register(uint8_t reg);
 /* Write one byte into the MiRF register */
 void MIRF_set_register(uint8_t reg, uint8_t value);
 
+/* Read one byte from the MiRF register and mask
+ * with the given mnemonic */
+uint8_t MIRF_get_register_bit(uint8_t reg, uint8_t mnemonic);
+
+/* Write one byte masked with the given mnemonic into
+ * the MiRF register */
+void MIRF_set_register_bit(uint8_t reg, uint8_t mnemonic);
+
+/* Write one byte reversed masked with the given mnemonic into
+ * the MiRF register */
+void MIRF_clear_register_bit(uint8_t reg, uint8_t mnemonic);
+
 /* Read an array of bytes from the MiRF register */
 void MIRF_read_register(uint8_t reg, uint8_t *value, uint8_t len);
 
@@ -106,15 +129,36 @@ void MIRF_read_register(uint8_t reg, uint8_t *value, uint8_t len);
 void MIRF_write_register(uint8_t reg, uint8_t *value, uint8_t len);
 
 /* Send a data package to the given address. Be sure to send the
- * correct amount of bytes as configured as payload on the receiver
+ * correct amount of bytes as configured as payload on the receiver.
+ * This method also takes care of the RX[0] status and handles the
+ * nRF IRQ flags.
  * Returns 1 if data transmission is successful and 0 if not */
-uint8_t MIRF_send_data(uint8_t *address, uint8_t *data, uint8_t payload_size);
+uint8_t MIRF_send_data_no_irq(uint8_t *address, uint8_t *data, uint8_t payload_size);
 
-/* Flush the RX and TX payloads */
+/* Send a data package to the given address. Be sure to send the
+ * correct amount of bytes as configured as payload on the receiver
+ * It's up to the caller to handle the nRF IRQ flags */
+void MIRF_send_data(uint8_t *address, uint8_t *data, uint8_t payload_size);
+
+/* Transmit the TX FIFO content within given delay in
+ * microseconds. Enter in Standby-II mode during this
+ * period if the TX FIFO is empty */
+void MIRF_transmit(void);
+
+/* Flush the RX and TX FIFOs */
 void MIRF_flush_rx_tx(void);
+
+/* Flush the RX FIFO */
+void MIRF_flush_rx(void);
+
+/* Flush the TX FIFO */
+void MIRF_flush_tx(void);
 
 /* Wait for data and read it when it arrives */
 void MIRF_receive_data(uint8_t *data, uint8_t payload_size);
+
+/* Read the RX Payload */
+void MIRF_read_data(uint8_t *data, uint8_t payload_size);
 
 /* Clear the flags for the RX_DR, TX_DS and MAX_RT interrupts */
 void MIRF_clear_all_interrupts(void);
