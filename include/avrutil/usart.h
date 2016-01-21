@@ -35,4 +35,6 @@ void USART_print_byte(uint8_t byte);
 
 void USART_print_word(uint16_t word);
 
+void USART_print_integer(uint32_t integer);
+
 #endif

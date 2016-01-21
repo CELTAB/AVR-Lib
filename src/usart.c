@@ -108,3 +108,17 @@ void USART_print_word(uint16_t word)
 	USART_transmit_byte('0' + ((word / 10) % 10));
 	USART_transmit_byte('0' + (word % 10));
 }
+
+void USART_print_integer(uint32_t integer)
+{
+	USART_transmit_byte('0' + (integer / 1000000000));
+	USART_transmit_byte('0' + ((integer / 100000000) % 10));
+	USART_transmit_byte('0' + ((integer / 10000000) % 10));
+	USART_transmit_byte('0' + ((integer / 1000000) % 10));
+	USART_transmit_byte('0' + ((integer / 100000) % 10));
+	USART_transmit_byte('0' + ((integer / 10000) % 10));
+	USART_transmit_byte('0' + ((integer / 1000) % 10));
+	USART_transmit_byte('0' + ((integer / 100) % 10));
+	USART_transmit_byte('0' + ((integer / 10) % 10));
+	USART_transmit_byte('0' + (integer % 10));
+}
