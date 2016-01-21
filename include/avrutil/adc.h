@@ -1,14 +1,14 @@
 #include <avr/io.h>
 
-#define FREE_RUNNING		0
-#define ANALOG_COMPARATOR	1
-#define EXT_IRQ0		2
-#define TMR_CNT0_MATCH_A	3
-#define TMR_CNT0_OVERFLOW	4
-#define TMR_CNT1_MATCH_B	5
-#define TMR_CNT1_OVERFLOW	6
-#define TMR_CNT1_CAPTURE_EVENT	7
-#define NORMAL			8
+#define ADC_FREE_RUNNING		0
+#define ADC_ANALOG_COMPARATOR		1
+#define ADC_EXT_IRQ0			2
+#define ADC_TMR_CNT0_MATCH_A		3
+#define ADC_TMR_CNT0_OVERFLOW		4
+#define ADC_TMR_CNT1_MATCH_B		5
+#define ADC_TMR_CNT1_OVERFLOW		6
+#define ADC_TMR_CNT1_CAPTURE_EVENT	7
+#define ADC_NORMAL			8
 
 void ADC_init();
 
