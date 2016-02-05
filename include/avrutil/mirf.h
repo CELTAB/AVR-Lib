@@ -34,7 +34,7 @@
 #ifndef MIRF_RETR
 /* ARD - Auto Retransmit Delay */
 /* ARC - Auto Retransmit Count */
-/* 1000 us retransmit delay and 10 retransmit count */
+/* 1000 us retransmit delay and 15 retransmit count */
 #define MIRF_RETR (5<<ARD | 15<<ARC)
 #endif
 
@@ -74,6 +74,9 @@
 #define MIRF_RX MIRF_set_register_bit(CONFIG, PRIM_RX);\
 	CE_high; _delay_us(130)
 
+#define MIRF_STANDBY_ON CE_low;
+
+#define MIRF_STANDBY_OFF CE_high; _delay_us(130)
 /* --------------------------------------- */
 
 #define MIRF_MAX_RT_REACHED MIRF_status() & (1<<MAX_RT)
@@ -183,7 +186,7 @@ void MIRF_read_data(uint8_t *data, uint8_t payload_size);
 
 /* Read the top RX payload size and then read the
  * RX payload with the read value */
-void MIRF_read_dynamic_payload_data(uint8_t *data);
+uint8_t MIRF_read_dynamic_payload_data(uint8_t *data);
 
 /* Clear the flags for the RX_DR, TX_DS and MAX_RT interrupts */
 void MIRF_clear_all_interrupts(void);

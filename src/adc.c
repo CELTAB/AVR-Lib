@@ -10,7 +10,7 @@ void ADC_setup(uint8_t division_factor, uint8_t trigger_source, uint8_t irq)
 {
 	ADC_select_prescaler(division_factor);
 
-	if(trigger_source == NORMAL) {
+	if(trigger_source == ADC_NORMAL) {
 		ADC_disable_trigger_source();
 	} else {
 		ADC_enable_trigger_source(trigger_source);

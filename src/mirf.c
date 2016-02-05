@@ -20,7 +20,9 @@ void MIRF_setup_config(void)
 	SPI_init_master();
 
 	/* Small delay to be sure that the nRF24L01 module is turned on */
-	_delay_ms(100);
+	_delay_ms(150);
+
+	MIRF_POWER_DOWN;
 
 	/* SETUP_AW - Setup of Address Width (commom for all data pipes) */
 	MIRF_set_register(SETUP_AW, MIRF_AW);
@@ -69,7 +71,11 @@ void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address)
 	MIRF_set_register(EN_AA, _pipe_mask);
 	/* Set the payload_size and the address in the respective pipe */
 
-	MIRF_write_register(RX_ADDR_P0 + pipe, address, ADDR_SIZE);
+	if(pipe < 2) {
+		MIRF_write_register(RX_ADDR_P0 + pipe, address, ADDR_SIZE);
+	} else {
+		MIRF_write_register(RX_ADDR_P0 + pipe, address, 1);
+	}
 
 	if(!payload_size) {
 		MIRF_set_register_bit(DYNPD, pipe);
@@ -339,7 +345,7 @@ void MIRF_read_data(uint8_t *data, uint8_t payload_size)
 
 /* Read the top RX payload size and then read the
  * RX payload with the read value */
-void MIRF_read_dynamic_payload_data(uint8_t *data)
+uint8_t MIRF_read_dynamic_payload_data(uint8_t *data)
 {
 	uint8_t payload_size;
 
@@ -349,6 +355,8 @@ void MIRF_read_dynamic_payload_data(uint8_t *data)
 	CSN_high;
 
 	MIRF_read_data(data, payload_size);
+
+	return payload_size;
 }
 
 /* Clear the flags for the RX_DR, TX_DS and MAX_RT interrupts */

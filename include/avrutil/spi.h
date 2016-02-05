@@ -6,6 +6,10 @@
 #if defined (__AVR_ATmega328P__) || defined (__AVR_ATmega328__)
 #include <avrutil/spim328p.h>
 #endif
+#if defined (__AVR_ATtiny84__)
+#include <avrutil/spitn84.h>>
+#endif
+
 
 /* The definitions of the CSN PORT are defined in
  * the mcu-specific files (like spim328.h). In
