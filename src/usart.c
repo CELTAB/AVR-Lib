@@ -84,6 +84,19 @@ void USART_receive_byte_array(uint8_t* byte_array, uint8_t size)
 	}
 }
 
+uint8_t USART_receive_byte_array_until(uint8_t* byte_array, uint8_t stop_char)
+{
+	uint8_t byte_char, i;
+	for(i = 0; ;i++) {
+		byte_char = USART_receive_byte();
+		if(stop_char == byte_char) {
+			return i;
+		} else {
+			byte_array[i] = byte_char;
+		}
+	}
+}
+
 void USART_print_string(const char string[])
 {
 	uint8_t i = 0;
