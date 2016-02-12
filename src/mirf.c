@@ -53,6 +53,17 @@ void MIRF_init(void)
 	MIRF_POWER_UP;
 }
 
+/* Set the address on the given pipe */
+void MIRF_set_address(uint8_t pipe,  uint8_t* address)
+{
+	if(pipe < 2) {
+		MIRF_write_register(RX_ADDR_P0 + pipe, address, ADDR_SIZE);
+	} else {
+		MIRF_write_register(RX_ADDR_P0 + pipe, address, 1);
+	}
+
+}
+
 /* Enable given RX data pipe[5:0] with auto acknowledgment
  * and set the RX address. Be aware that the pipes 1 to 5 share the
  * same 4 most signifcant bytes.
@@ -71,11 +82,7 @@ void MIRF_enable_rx_pipe(uint8_t pipe, uint8_t payload_size, uint8_t* address)
 	MIRF_set_register(EN_AA, _pipe_mask);
 	/* Set the payload_size and the address in the respective pipe */
 
-	if(pipe < 2) {
-		MIRF_write_register(RX_ADDR_P0 + pipe, address, ADDR_SIZE);
-	} else {
-		MIRF_write_register(RX_ADDR_P0 + pipe, address, 1);
-	}
+	MIRF_set_address(pipe, address);
 
 	if(!payload_size) {
 		MIRF_set_register_bit(DYNPD, pipe);
@@ -257,11 +264,11 @@ uint8_t MIRF_send_data_no_irq(uint8_t *address, uint8_t *data, uint8_t payload_s
 
 	if(MIRF_MAX_RT_REACHED) {
 		/* Reset MAX_RT */
-		MIRF_set_register(STATUS, 1<<MAX_RT);
+		MIRF_CLEAR_MAX_RT;
 		return 0;
 	} else {
 		/* Reset TX_DS */
-		MIRF_set_register(STATUS, 1<<TX_DS);
+		MIRF_CLEAR_TX_DS;
 		return 1;
 	}
 }
@@ -337,7 +344,6 @@ void MIRF_read_data(uint8_t *data, uint8_t payload_size)
 	SPI_transfer(R_RX_PAYLOAD);
 	SPI_read_data(data, payload_size);
 	CSN_high;
-	MIRF_set_register(STATUS, (1<<RX_DR));
 
 	CE_high;
 	_delay_us(130);

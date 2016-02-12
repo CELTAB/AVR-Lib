@@ -83,9 +83,9 @@
 #define MIRF_DATA_READY MIRF_status() & (1<<RX_DR)
 #define MIRF_DATA_SENT MIRF_status() & (1<<TX_DS)
 
-#define MIRF_CLEAR_MAX_RT MIRF_set_register_bit(STATUS, MAX_RT);
-#define MIRF_CLEAR_RX_DR MIRF_set_register_bit(STATUS, RX_DR);
-#define MIRF_CLEAR_TX_DS MIRF_set_register_bit(STATUS, TX_DS);
+#define MIRF_CLEAR_MAX_RT MIRF_set_register(STATUS, 1<<MAX_RT);
+#define MIRF_CLEAR_RX_DR MIRF_set_register(STATUS, 1<<RX_DR);
+#define MIRF_CLEAR_TX_DS MIRF_set_register(STATUS, 1<<TX_DS);
 
 /* Set the configuration registers with the defined values
  * and the CE pin as output */
@@ -94,6 +94,9 @@ void MIRF_setup_config(void);
 /* Clear the interrupt flags, the RX and TX FIFOs and
  * enter in the Standby-I mode */
 void MIRF_init(void);
+
+/* Set the address on the given pipe */
+void MIRF_set_address(uint8_t pipe,  uint8_t* address);
 
 /* Enable given RX data pipe[5:0] with auto acknowledgment
  * and set the RX address. Be aware that the pipes 1 to 5 share the
