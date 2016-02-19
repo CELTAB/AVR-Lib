@@ -9,6 +9,6 @@
 * Timer/Counter Delay
 
 
-Tested models:
+### Tested Models:
 * ATmega328p
 * ATtiny84
